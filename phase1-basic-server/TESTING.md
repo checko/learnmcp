@@ -10,6 +10,11 @@ This guide provides multiple ways to test your calculator MCP server. All method
 - [Method 3: Integration with Claude Desktop](#method-3-integration-with-claude-desktop)
 - [Method 4: Test Client Script](#method-4-test-client-script)
 - [Method 5: Unit Tests](#method-5-unit-tests)
+- [Method 6: Testing with Other LLMs](#method-6-testing-with-other-llms)
+  - [Ollama Integration](#ollama-integration)
+  - [Codex CLI Integration](#codex-cli-integration)
+  - [Gemini CLI Integration](#gemini-cli-integration)
+  - [Cursor Agents Integration](#cursor-agents-integration)
 - [Troubleshooting](#troubleshooting)
 - [Quick Test Commands](#quick-test-commands)
 
@@ -328,6 +333,309 @@ The tests verify:
 - ✅ Error handling for division by zero
 - ✅ Error handling for invalid operations
 - ✅ Input validation
+
+## Method 6: Testing with Other LLMs
+
+Test your MCP server with various LLM tools and platforms beyond Claude Desktop.
+
+### Ollama Integration
+
+Ollama supports MCP server integration for local LLM testing.
+
+#### Installation
+
+```bash
+# Install Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Pull a model (e.g., Llama 2)
+ollama pull llama2
+```
+
+#### Configuration
+
+Create or edit Ollama's MCP configuration file:
+
+**Location:** `~/.ollama/mcp.json` (create if it doesn't exist)
+
+```json
+{
+  "mcpServers": {
+    "calculator": {
+      "command": "node",
+      "args": ["/full/path/to/your/learnmcp/phase1-basic-server/dist/index.js"],
+      "cwd": "/full/path/to/your/learnmcp/phase1-basic-server"
+    }
+  }
+}
+```
+
+#### Usage
+
+```bash
+# Start Ollama with MCP integration
+ollama serve --mcp-config ~/.ollama/mcp.json
+
+# In another terminal, test with natural language
+ollama run llama2
+# Then ask: "Calculate 15 times 8"
+```
+
+#### Example Session
+
+```
+>>> Calculate 15 times 8
+The calculator tool shows that 15 × 8 = 120.
+
+>>> What is 144 divided by 12?
+Using the calculator tool, 144 ÷ 12 = 12.
+```
+
+### Codex CLI Integration
+
+Codex CLI provides command-line access to OpenAI's Codex model with MCP support.
+
+#### Installation
+
+```bash
+npm install -g codex-cli
+```
+
+#### Configuration
+
+Set environment variables for Codex CLI:
+
+```bash
+export CODEX_API_KEY="your-openai-api-key"
+export CODEX_MCP_SERVERS='{"calculator":{"command":"node","args":["/full/path/to/your/learnmcp/phase1-basic-server/dist/index.js"],"cwd":"/full/path/to/your/learnmcp/phase1-basic-server"}}'
+```
+
+#### Usage
+
+```bash
+# Interactive mode
+codex-cli --mcp
+
+# Then ask questions like:
+# "What is 25 plus 17?"
+# "Calculate 9 times 7"
+```
+
+#### Example Commands
+
+```bash
+# Direct calculation
+codex-cli "Calculate 15 + 27" --mcp
+
+# Interactive session
+codex-cli --interactive --mcp
+```
+
+### Gemini CLI Integration
+
+Google's Gemini CLI tool with MCP server support.
+
+#### Installation
+
+```bash
+# Install Gemini CLI (if available)
+npm install -g gemini-cli
+# OR use gcloud CLI
+gcloud components install gemini-cli
+```
+
+#### Configuration
+
+Create a Gemini CLI configuration file:
+
+**Location:** `~/.config/gemini/config.json`
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "calculator": {
+        "command": "node",
+        "args": ["/full/path/to/your/learnmcp/phase1-basic-server/dist/index.js"],
+        "cwd": "/full/path/to/your/learnmcp/phase1-basic-server"
+      }
+    }
+  },
+  "api_key": "your-gemini-api-key"
+}
+```
+
+#### Usage
+
+```bash
+# Test with natural language
+gemini-cli "What is 18 times 12?"
+
+# Interactive mode
+gemini-cli --interactive
+```
+
+#### Example Interactions
+
+```
+$ gemini-cli "Calculate 45 divided by 9"
+Using the calculator tool, 45 ÷ 9 = 5.
+
+$ gemini-cli "What is 7 squared?"
+7² = 49 (calculated using the calculator tool).
+```
+
+### Cursor Agents Integration
+
+Cursor's built-in agent system with MCP server integration.
+
+#### Configuration
+
+**1. Open Cursor Settings:**
+- Go to `Cursor Settings` → `Agents` → `MCP Servers`
+
+**2. Add your server:**
+```json
+{
+  "mcpServers": {
+    "calculator": {
+      "command": "node",
+      "args": ["/full/path/to/your/learnmcp/phase1-basic-server/dist/index.js"],
+      "cwd": "/full/path/to/your/learnmcp/phase1-basic-server"
+    }
+  }
+}
+```
+
+**3. Alternative: Edit config file directly**
+
+**Location:** `~/Library/Application Support/Cursor/mcp.json` (macOS)
+
+```json
+{
+  "mcpServers": {
+    "calculator": {
+      "command": "node",
+      "args": ["/full/path/to/your/learnmcp/phase1-basic-server/dist/index.js"],
+      "cwd": "/full/path/to/your/learnmcp/phase1-basic-server"
+    }
+  }
+}
+```
+
+#### Usage
+
+**1. Open Cursor**
+**2. Use Cursor's Composer or Chat**
+**3. Ask calculation questions:**
+
+```
+Calculate 23 + 47
+What is 156 divided by 12?
+Multiply 13 by 9
+```
+
+**4. Use Cursor Agents:**
+- Open the agents panel
+- Select your calculator agent
+- Ask for calculations
+
+#### Advanced Cursor Features
+
+```javascript
+// Use in Cursor's code editor
+// Ask: "Calculate the factorial of 5"
+// The agent will use your calculator tool for computations
+```
+
+### General MCP Integration Tips
+
+#### For All LLM Tools
+
+**1. Path Configuration:**
+Always use absolute paths in configuration files:
+```json
+{
+  "command": "node",
+  "args": ["/full/absolute/path/to/dist/index.js"],
+  "cwd": "/full/absolute/path/to/phase1-basic-server"
+}
+```
+
+**2. Verify Server Startup:**
+```bash
+# Test that your server starts correctly
+cd /path/to/phase1-basic-server
+npm run build
+timeout 5 npm start
+```
+
+**3. Check Tool Discovery:**
+Most MCP-compatible tools will automatically discover your tools after configuration. If not, look for:
+- Server logs for connection errors
+- Tool listing commands
+- Configuration validation
+
+#### Environment Variables
+
+Some tools support MCP configuration via environment variables:
+
+```bash
+export MCP_SERVERS='{"calculator":{"command":"node","args":["/path/to/dist/index.js"],"cwd":"/path/to/phase1-basic-server"}}'
+```
+
+#### Testing Script for Multiple LLMs
+
+Create a comprehensive test script:
+
+```bash
+#!/bin/bash
+# test-mcp-llms.sh
+
+echo "Testing MCP Server with multiple LLMs..."
+
+# Build server
+cd phase1-basic-server
+npm run build
+
+# Test 1: MCP Inspector
+echo "=== Testing MCP Inspector ==="
+npm run dev &
+SERVER_PID=$!
+sleep 2
+curl -X POST http://localhost:5173/api/tools/call \
+  -H "Content-Type: application/json" \
+  -d '{"name":"calculator","arguments":{"operation":"add","a":10,"b":5}}'
+kill $SERVER_PID
+
+# Test 2: Unit Tests
+echo "=== Running Unit Tests ==="
+npm test
+
+echo "=== MCP Server testing complete ==="
+```
+
+#### Common Issues Across LLMs
+
+**Server Won't Connect:**
+- Verify absolute paths in config
+- Check file permissions
+- Ensure Node.js is in PATH
+
+**Tools Not Discovered:**
+- Restart the LLM application
+- Check server logs for errors
+- Verify JSON configuration syntax
+
+**Authentication Issues:**
+- Ensure API keys are set correctly
+- Check rate limits
+- Verify account permissions
+
+**Performance Problems:**
+- Monitor server resource usage
+- Check for memory leaks
+- Optimize tool response times
 
 ## Troubleshooting
 
